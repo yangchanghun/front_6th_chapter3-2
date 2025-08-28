@@ -67,6 +67,11 @@ export function generateRecurringEvents(seed: Event): Event[] {
   return results;
 }
 
+export function hasRecurringIcon(events: Event[]): boolean {
+  // 반복 아이콘 표시 기준: repeat.type !== 'none'
+  return events.some((e) => e.repeat?.type && e.repeat.type !== 'none');
+}
+
 /* ================= helpers (유틸 사용 버전) ================= */
 
 function withDate(seed: Event, isoDate: string): Event {

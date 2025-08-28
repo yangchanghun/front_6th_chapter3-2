@@ -1,5 +1,5 @@
 import { Event } from '../../types';
-import { generateRecurringEvents } from '../../utils/recurrence';
+import { generateRecurringEvents, hasRecurringIcon } from '../../utils/recurrence';
 
 // 매일 반복 이벤트 (2025-08-25 ~ 2025-08-30)
 const dailyEvents: Event = {
