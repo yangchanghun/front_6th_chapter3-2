@@ -72,6 +72,26 @@ export function hasRecurringIcon(events: Event[]): boolean {
   return events.some((e) => e.repeat?.type && e.repeat.type !== 'none');
 }
 
+type Patch = Partial<Event>;
+
+export function updateRecurringOccurrence(
+  events: Event[],
+  opts: { seriesId: string; date: string; startTime: string; patch: Patch }
+): Event[] {
+  const { seriesId, date, startTime, patch } = opts;
+
+  return events.map((ev) => {
+    const sameSeries = ev.id === seriesId; // 시리즈 식별(필요시 seriesId 필드 따로 둘 수도 있음)
+    const sameDateTime = ev.date === date && ev.startTime === startTime;
+
+    if (sameSeries && sameDateTime) {
+      // 해당 occurrence만 패치
+      return { ...ev, ...patch };
+    }
+    return ev;
+  });
+}
+
 /* ================= helpers (유틸 사용 버전) ================= */
 
 function withDate(seed: Event, isoDate: string): Event {
