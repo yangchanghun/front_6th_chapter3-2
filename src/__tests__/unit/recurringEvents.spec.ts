@@ -199,3 +199,29 @@ describe('캘린더 뷰에서 반복 일정을 아이콘을 넣어 구분하여 
     });
   });
 });
+
+describe('반복 종료 조건 (특정 날짜까지)', () => {
+  describe('사용자가 유효한 반복 종료일을 지정한다', () => {
+    it("일정 생성 폼에서(given) '2025-08-25 ~ 2025-09-10'으로 매주 반복 일정을 생성하면(when) '2025-09-01'과 '2025-09-08'에 해당하는 2개의 반복 일정만 생성된다(then)", () => {
+      const weeklyEvent: Event = {
+        id: 'w1',
+        title: '주간 반복',
+        date: '2025-08-25', // 월요일
+        startTime: '09:00',
+        endTime: '10:00',
+        repeat: { type: 'weekly', interval: 1, endDate: '2025-09-10' },
+        description: '',
+        location: '',
+        category: '',
+        notificationTime: 0,
+      };
+
+      // when: 반복 일정 생성
+      const generated = generateRecurringEvents(weeklyEvent);
+
+      expect(generated[0].date).toEqual('2025-08-25');
+      expect(generated[1].date).toEqual('2025-09-01');
+      expect(generated[2].date).toEqual('2025-09-08');
+    });
+  });
+});
