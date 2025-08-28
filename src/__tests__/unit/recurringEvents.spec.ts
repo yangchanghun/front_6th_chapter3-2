@@ -1,5 +1,9 @@
 import { Event } from '../../types';
-import { generateRecurringEvents, hasRecurringIcon } from '../../utils/recurrence';
+import {
+  generateRecurringEvents,
+  hasRecurringIcon,
+  updateRecurringOccurrence,
+} from '../../utils/recurrence';
 
 // 매일 반복 이벤트 (2025-08-25 ~ 2025-08-30)
 const dailyEvents: Event = {
@@ -223,5 +227,46 @@ describe('반복 종료 조건 (특정 날짜까지)', () => {
       expect(generated[1].date).toEqual('2025-09-01');
       expect(generated[2].date).toEqual('2025-09-08');
     });
+  });
+});
+
+describe('반복 일정 단일 수정', () => {
+  it('매주 월요일 09시 반복 일정이 존재하고(given) 2025-09-01 09시 일정의 제목을 변경하면(when) 2025-09-01 09시 일정의 제목이 변경된다(then)', () => {
+    // given: 2025-08-25 ~ 2025-09-08 매주 월요일 09:00
+    const weekly: Event = {
+      id: 'series-1',
+      title: '주간 회의',
+      date: '2025-08-25', // 월요일
+      startTime: '09:00',
+      endTime: '10:00',
+      repeat: { type: 'weekly', interval: 1, endDate: '2025-09-08' },
+      description: '',
+      location: '',
+      category: '',
+      notificationTime: 0,
+    };
+
+    const src = generateRecurringEvents(weekly);
+    // 기대 날짜: 2025-08-25, 2025-09-01, 2025-09-08
+
+    // when: 2025-09-01 09:00 occurrence의 제목만 변경
+    const patched = updateRecurringOccurrence(src, {
+      seriesId: 'series-1',
+      date: '2025-09-01',
+      startTime: '09:00',
+      patch: { title: '주간 회의(안건 업데이트)' },
+    });
+
+    // then
+    expect(patched).toHaveLength(3);
+
+    // 해당 occurrence만 변경
+    const d825 = patched.find((e) => e.date === '2025-08-25')!;
+    const d901 = patched.find((e) => e.date === '2025-09-01')!;
+    const d908 = patched.find((e) => e.date === '2025-09-08')!;
+
+    expect(d825.title).toBe('주간 회의'); // 그대로
+    expect(d901.title).toBe('주간 회의(안건 업데이트)'); // 변경됨
+    expect(d908.title).toBe('주간 회의'); // 그대로
   });
 });
