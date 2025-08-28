@@ -92,6 +92,21 @@ export function updateRecurringOccurrence(
   });
 }
 
+export function deleteRecurringOccurrence(
+  events: Event[],
+  opts: { seriesId: string; date: string; startTime: string }
+): Event[] {
+  const { seriesId, date, startTime } = opts;
+
+  // 해당 시리즈의 특정 날짜/시간 occurrence만 제거
+  return events.filter((ev) => {
+    const sameSeries = ev.id === seriesId;
+    const sameDateTime = ev.date === date && ev.startTime === startTime;
+    // sameSeries && sameDateTime 인 그 한 건만 제외하고 나머지는 유지
+    return !(sameSeries && sameDateTime);
+  });
+}
+
 /* ================= helpers (유틸 사용 버전) ================= */
 
 function withDate(seed: Event, isoDate: string): Event {
