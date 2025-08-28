@@ -123,3 +123,79 @@ describe('반복 유형 선택', () => {
     });
   });
 });
+
+describe('캘린더 뷰에서 반복 일정을 아이콘을 넣어 구분하여 표시한다.', () => {
+  describe('반복 일정이 캘린더에 반복 아이콘으로 구분 표기된다', () => {
+    it('반복 일정이 존재하는 상태에서(given) 캘린더를 렌더링하면(when) 반복 일정 아이콘이 표시된다(then)', () => {
+      // Unit: UI 없이 로직만 검증
+      expect(
+        hasRecurringIcon([
+          {
+            id: '1',
+            title: '반복 일정',
+            date: '2025-08-25',
+            startTime: '09:00',
+            endTime: '10:00',
+            repeat: { type: 'daily', interval: 1, endDate: '2025-08-30' },
+            description: '',
+            location: '',
+            category: '',
+            notificationTime: 0,
+          },
+        ])
+      ).toBe(true);
+      // 혼합 케이스(반복 + 단일)도 true
+      expect(
+        hasRecurringIcon([
+          {
+            id: '1',
+            title: '반복 일정',
+            date: '2025-08-25',
+            startTime: '09:00',
+            endTime: '10:00',
+            repeat: { type: 'daily', interval: 1, endDate: '2025-08-30' },
+            description: '',
+            location: '',
+            category: '',
+            notificationTime: 0,
+          },
+          {
+            id: '2',
+            title: '단일 일정',
+            date: '2025-08-25',
+            startTime: '14:00',
+            endTime: '15:00',
+            repeat: { type: 'none', interval: 0 },
+            description: '',
+            location: '',
+            category: '',
+            notificationTime: 0,
+          },
+        ])
+      ).toBe(true);
+    });
+  });
+
+  describe('단일 일정에는 반복 아이콘이 표시되지 않는다', () => {
+    it('반복 일정이 없는 상태에서(given) 캘린더를 렌더링하면(when) 반복 일정 아이콘이 표시되지 않는다(then)', () => {
+      expect(
+        hasRecurringIcon([
+          {
+            id: '2',
+            title: '단일 일정',
+            date: '2025-08-25',
+            startTime: '14:00',
+            endTime: '15:00',
+            repeat: { type: 'none', interval: 0 },
+            description: '',
+            location: '',
+            category: '',
+            notificationTime: 0,
+          },
+        ])
+      ).toBe(false);
+      // 이벤트가 아예 없을 때도 false
+      expect(hasRecurringIcon([])).toBe(false);
+    });
+  });
+});
