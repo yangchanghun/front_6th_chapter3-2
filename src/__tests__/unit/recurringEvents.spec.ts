@@ -1,5 +1,6 @@
 import { Event } from '../../types';
 import {
+  deleteRecurringOccurrence,
   generateRecurringEvents,
   hasRecurringIcon,
   updateRecurringOccurrence,
@@ -268,5 +269,52 @@ describe('반복 일정 단일 수정', () => {
     expect(d825.title).toBe('주간 회의'); // 그대로
     expect(d901.title).toBe('주간 회의(안건 업데이트)'); // 변경됨
     expect(d908.title).toBe('주간 회의'); // 그대로
+  });
+});
+
+describe('반복 일정 단일 삭제 (해당 발생만 삭제)', () => {
+  it('매일 09시 반복 일정이 존재하고(given) 2025-08-27 09시 일정을 삭제하면(when) 2025-08-27 09시 일정이 캘린더에서 사라진다(then)', () => {
+    // given: 2025-08-25 ~ 2025-08-30 매일 09:00
+    const daily: Event = {
+      id: 'series-daily-09',
+      title: '매일 아침 미팅',
+      date: '2025-08-25',
+      startTime: '09:00',
+      endTime: '10:00',
+      repeat: { type: 'daily', interval: 1, endDate: '2025-08-30' },
+      description: '',
+      location: '',
+      category: '',
+      notificationTime: 0,
+    };
+
+    const src = generateRecurringEvents(daily);
+    // 기대 생성 날짜: 25, 26, 27, 28, 29, 30 (총 6개)
+    expect(src.map((e) => e.date)).toEqual([
+      '2025-08-25',
+      '2025-08-26',
+      '2025-08-27',
+      '2025-08-28',
+      '2025-08-29',
+      '2025-08-30',
+    ]);
+
+    // when: 2025-08-27 09:00 발생만 삭제
+    const patched = deleteRecurringOccurrence(src, {
+      seriesId: 'series-daily-09',
+      date: '2025-08-27',
+      startTime: '09:00',
+    });
+
+    // then: 27일만 빠지고 나머지는 유지
+    expect(patched.map((e) => e.date)).toEqual([
+      '2025-08-25',
+      '2025-08-26',
+      '2025-08-28',
+      '2025-08-29',
+      '2025-08-30',
+    ]);
+    // 27일이 존재하지 않아야 함
+    expect(patched.find((e) => e.date === '2025-08-27' && e.startTime === '09:00')).toBeUndefined();
   });
 });
